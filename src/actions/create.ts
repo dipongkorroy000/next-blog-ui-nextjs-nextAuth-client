@@ -1,10 +1,13 @@
 "use server";
 
+import { getUserSession } from "@/helpers/getUserSession";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 export const create = async (data: FormData) => {
   // console.log(data);
+
+  const session = await getUserSession();
 
   const blogInfo = Object.fromEntries(data.entries());
 
@@ -14,8 +17,8 @@ export const create = async (data: FormData) => {
       .toString()
       .split(",")
       .map((tag) => tag.trim()),
-    authorId: 1,
-    isFeatured: Boolean(blogInfo.isFeatured)
+    authorId: session?.user.id,
+    isFeatured: Boolean(blogInfo.isFeatured),
   };
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_API}/post`, {
@@ -25,11 +28,11 @@ export const create = async (data: FormData) => {
   });
   const result = await res.json();
 
-  if(result?.id) {
-    revalidateTag("BLOGS"); // reload home page 
+  if (result?.id) {
+    revalidateTag("BLOGS"); // reload home page
     revalidatePath("/blogs"); // reload blogs page
     redirect("/blogs");
   }
 
-  return result
+  return result;
 };

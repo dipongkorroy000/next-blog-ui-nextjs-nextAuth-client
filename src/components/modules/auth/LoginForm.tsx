@@ -8,6 +8,9 @@ import Link from "next/link";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Image from "next/image";
 import { signIn } from "next-auth/react";
+import { toast } from "sonner";
+import { login } from "@/actions/auth";
+import { useRouter } from "next/navigation";
 
 type LoginFormValues = {
   email: string;
@@ -15,6 +18,8 @@ type LoginFormValues = {
 };
 
 export default function LoginForm() {
+  const router = useRouter();
+
   const form = useForm<LoginFormValues>({
     defaultValues: {
       email: "",
@@ -22,8 +27,32 @@ export default function LoginForm() {
     },
   });
 
-  const onSubmit = (values: LoginFormValues) => {
-    console.log("Login submitted:", values);
+  const onSubmit = async (values: LoginFormValues) => {
+    try {
+      // const res = await login(values);
+      // if (res?.id) {
+      //   toast.success("Login successful!");
+      //   router.push("/dashboard");
+      // }
+
+      signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+        callbackUrl: "/dashboard",
+      }).then((callback) => {
+        if (callback?.error) {
+          toast.error("Login failed. Please check your credentials.");
+        }
+        if (callback?.ok && !callback?.error) {
+          toast.success("Login successful!");
+          router.push(callback?.url || "/dashboard");
+        }
+      });
+    } catch (error) {
+      console.log(error);
+      toast.error("Login failed. Please check your credentials.");
+    }
   };
 
   const handleSocialLogin = async (provider: "google" | "github") => {
