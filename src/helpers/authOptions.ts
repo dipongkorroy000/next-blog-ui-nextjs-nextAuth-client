@@ -8,4 +8,6 @@ export const authOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
   ],
+  // Use the server-side NEXTAUTH_SECRET variable (do not expose this as NEXT_PUBLIC_...)
+  secret: process.env.NEXTAUTH_SECRET,
 };
