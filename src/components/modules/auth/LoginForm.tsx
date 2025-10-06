@@ -29,10 +29,10 @@ export default function LoginForm() {
   const handleSocialLogin = async (provider: "google" | "github") => {
     console.log(`Login with ${provider}`);
 
-    if(provider === "google"){
-       const res=  await signIn("google");
+    if (provider === "google") {
+      const res = await signIn("google", { callbackUrl: "/dashboard" });
 
-       console.log(res);
+      console.log(res);
     }
   };
 
